@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>步骤3：异步任务 + SSE推送</title>
+</head>
+<body>
+    <h3>步骤3：异步任务 + SSE推送</h3>
+    <input type="text" id="sessionIdInput" placeholder="请输入会话id" value="task_001">
+    <button onclick="submitTask()">提交任务</button>
+    <div id="result"></div>
+
+    <script>
+        async function submitTask(){
+            const sessionID=document.getElementById('sessionIdInput').value
+            let response=await fetch('http://127.0.0.1:8001/submit/${sessionId}')
+            const resultDom=document.getElementById('result')
+            if(response.ok){
+                let resultData=await response.json()
+                 resultDom.innerHTML += "<p style='color:green;'>👩：任务提交成功：" + resultData.message + "</p>"
+
+            }
+            const eventSource = new EventSource(`http://127.0.0.1:8001/stream/${sessionId}`)
+
+            // 监听结果
+            eventSource.onmessage = function (event){
+                resultDom.innerHTML += event.data +  "<br>";
+            }
+        }
+
+
+    </script>
+
+</body>
+</html>
